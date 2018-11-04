@@ -1,0 +1,18 @@
+User logs in/sign up
+user views menu
+user picks items
+user places order
+user pays online
+
+Admin gets order
+Admin accepts order 
+[A transaction is now made]
+Admin confirms the transaction
+
+Food gets to the user 
+user pays online
+user confirms the transaction
+
+User views all his transactions
+
+Admin views all transaction

@@ -1,0 +1,24 @@
+KONKET API
+-----------
+This is a software system for storing contacts. The aim is to make sure you have access to 
+all your contacts anywere anytime as long as you are connected to the internet
+
+User
+----
+-/signin [POST. email,password]
+-/signup [POST name,email,phone]
+-/confirm [POST. code]
+-/forgot_pass [POST. email]
+-/forgot_pass/changepass [POST. code,new_password]
+-/changepass [POST. old_password,new_password] *
+-/ [GET] *
+
+Contact 
+--------
+-/add [POST name,phone,email]
+-/all [GET] -gets all the contacts belonging to a user
+-/admin/all [GET] -gets all the contatcts on the platform
+-/:id/edit [POST. name, phone, email]
+-/:id/delete [GET] -delete a contact belonging to a user
+
+

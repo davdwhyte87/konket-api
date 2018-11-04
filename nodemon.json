@@ -1,0 +1,7 @@
+{
+    "env":{
+        "DB_URL":"mongodb+srv://swaye:swayeisdope@cluster0-17bfx.mongodb.net/konket?retryWrites=true",
+        "DB_URL_L":"mongodb://localhost/konket",
+        "JWT":"wwwoieooooeieoeoeoirrororiroro349949i5ioriokrork"
+    }
+}

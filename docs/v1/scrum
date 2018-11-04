@@ -1,0 +1,10 @@
+
+Sept 6 2018
+------------
+-Perfect the user controller (edit,get,change pass, forget pass)
+-start the order controller, (implement checkout)
+
+Sept 7
+------
+User model is working
+ive worked on the contact model

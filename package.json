@@ -1,0 +1,40 @@
+{
+  "name": "pie_music",
+  "version": "1.0.0",
+  "description": "An api written in node js for online streaming service",
+  "main": "server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "mocha",
+    "start": "nodemon server.js",
+    "clean": "mkdir build",
+    "build-babel": "babel -d ./build ./ -s --ignore node_modules",
+    "start-prod": "rmdir build /s && npm run clean && npm run build-babel && nodemon ./build/server.js"
+  },
+  "keywords": [
+    "Js",
+    "Node",
+    "Js",
+    "Api",
+    "Streaming",
+    "Service"
+  ],
+  "author": "David whyte John",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^3.0.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.3",
+    "jsonwebtoken": "^8.3.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "mocha": "^5.2.0",
+    "mongoose": "^5.3.9",
+    "morgan": "^1.9.0",
+    "nodemon": "^1.18.5"
+  }
+}
