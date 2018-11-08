@@ -3,10 +3,18 @@ const mongoose=require('mongoose')
 
 
 exports.add=(req,res)=>{
+    req.check("name","Name is required").isString().exists()
+    req.check("phone","Phone number is required").exists()
+    req.check("phone","You need a valid phone number").isLength({min:8})
+    var errors=req.validationErrors()
+    if(errors){
+        console.log(errors)
+        return res.status(200).json({code:0,message:"An error occured",errors:errors})
+    }
     var user_id=req.userData.userId
-    Contact.find({email:req.body.email,phone:req.body.phone}).exec()
+    Contact.findOne({email:req.body.email,phone:req.body.phone}).exec()
     .then(contact=>{
-        if(contact.length>0){
+        if(contact){
             return res.status(200).json({code:0,message:"This contact already exists"})
         }
         var contact=Contact({
@@ -14,6 +22,7 @@ exports.add=(req,res)=>{
             name:req.body.name,
             email:req.body.email,
             phone:req.body.phone,
+            address:req.body.address,
             user:user_id
         })
         contact.save().then(contact=>{
