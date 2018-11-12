@@ -1,23 +1,46 @@
+let check=require('express-validator/check')
 const User=require('../models/User')
 const bcrypt=require('bcrypt')
 const mongoose=require('mongoose')
 const jwt=require('jsonwebtoken')
 let config=require('config')
+
 //test
 exports.sayhi=(req,res)=>{
     res.status(200).json({message:"how far"})
 }
+exports.validate=(method)=>{
+    console.log("doneen")
+    switch(method){
+        case "signup":{
+            return [
+            check.body("name","An name is needed").exists(),
+            check.check("email","A valid email is needed").exists().isEmail(),
+            check.body("phone","A phone number is required").exists(),
+            check.body("phone","A valid phone number is required").exists().isLength({min:8}),
+            check.body("password","A password is required").exists(),
+            check.body("password","Password must be at least 5 characters")
+            ]
+        }
+    }
+}
+
 
 //sign up function
 exports.signup=(req,res)=>{
-    req.check("name","Name is required").isString().exists()
-    req.check("email","You need a valid email").isLength({min:8}).exists()
-    req.check("phone","Phone number is required").exists()
-    req.check("phone","You need a valid phone number").isLength({min:8})
-    req.check("password","A password is required").exists()
-    var errors=req.validationErrors()
-    if(errors){
-        return res.status(200).json({code:0,message:"An error occured",errors:errors})
+    // req.check("name","Name is required").isString().exists()
+    // req.check("email","You need a valid email").isLength({min:8}).exists()
+    // req.check("phone","Phone number is required").exists()
+    // req.check("phone","You need a valid phone number").isLength({min:8})
+    // req.check("password","A password is required").exists()
+    const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
+        // Build your resulting errors however you want! String, object, whatever - it works!
+        return msg;
+      };
+    var errors=check.validationResult(req).formatWith(errorFormatter)
+    if(!errors.isEmpty()){
+        console.log(errors)
+        return res.status(200).json({code:0,message:"An error occured",errors:errors.array(true)})
     }
     User.findOne({email:req.body.email}).exec().then(user=>{
         if(user){

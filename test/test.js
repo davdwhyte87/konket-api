@@ -1,6 +1,6 @@
 let mongoose=require('mongoose')
 let User=require('../models/User')
-
+let Contact=require('../models/Contact')
 let chai=require('chai');
 let chaiHttp=require('chai-http');
 let app=require('../app');
@@ -9,10 +9,18 @@ let should=chai.should();
 chai.use(chaiHttp);
 let code=0
 let token=""
-describe('Users',()=>{
+describe('Delete all data',()=>{
     it('Delete all users',(done)=>{
         //before each test we empty the database
         User.deleteMany({},(err)=>{
+            console.log(err);
+            done();
+        });
+    });
+
+    it('Delete all contacts',(done)=>{
+        //before each test we empty the database
+        Contact.deleteMany({},(err)=>{
             console.log(err);
             done();
         });
@@ -335,5 +343,120 @@ describe('User signed in', ()=>{
 
 
 });
+
+describe("Contacts Test",()=>{
+    it("it should create a new contact",(done)=>{
+        let contact={
+            name:"Maroon4",
+            email:"moron@gmail.com",
+            phone:"093384944"
+        }
+        chai.request(app).post('/contact/').set("token",token).send(contact)
+        .end((err,res)=>{
+            res.should.have.status(200)
+            res.should.be.a('object')
+            res.body.should.have.property('code').eql(1)
+            res.body.should.have.property('data')
+            res.body.data.should.have.property('name').eql(contact.name)
+            done()
+        })
+    })
+
+    it("it should create a new contact if the email field is empty",(done)=>{
+        let contact={
+            name:"Maroon4",
+            email:"",
+            phone:"093384944"
+        }
+        chai.request(app).post('/contact/').set("token",token).send(contact)
+        .end((err,res)=>{
+            res.should.have.status(200)
+            res.should.be.a('object')
+            res.body.should.have.property('code').eql(1)
+            res.body.should.have.property('data')
+            res.body.data.should.have.property('name').eql(contact.name)
+            done()
+        })
+    })
+
+    it("it should not create a new contact if the phone field is empty",(done)=>{
+        let contact={
+            name:"Maroon4",
+            email:"moron@gmail.com",
+            phone:""
+        }
+        chai.request(app).post('/contact/').set("token",token).send(contact)
+        .end((err,res)=>{
+            res.should.have.status(200)
+            res.should.be.a('object')
+            res.body.should.have.property('code').eql(0)
+            done()
+        })
+    })
+
+    it("it should not create a new contact if the phone number is less than 8",(done)=>{
+        let contact={
+            name:"Maroon4",
+            email:"moron@gmail.com",
+            phone:"093"
+        }
+        chai.request(app).post('/contact/').set("token",token).send(contact)
+        .end((err,res)=>{
+            res.should.have.status(200)
+            res.should.be.a('object')
+            res.body.should.have.property('code').eql(0)
+            done()
+        })
+    })
+
+    it("it should not  create a new contact if there is no token",(done)=>{
+        let contact={
+            name:"Maroon4",
+            email:"moron@gmail.com",
+            phone:"093384944"
+        }
+        chai.request(app).post('/contact/').set("tokenMenoor",token).send(contact)
+        .end((err,res)=>{
+            res.should.have.status(200)
+            res.should.be.a('object')
+            res.body.should.have.property('code').eql(0)
+            done()
+        })
+    })
+
+    let example_contaxt_id=""
+
+    it("it should get all a users contact",(done)=>{
+        chai.request(app).get('/contact/').set("token",token)
+        .end((err,res)=>{
+            res.should.have.status(200)
+            res.should.be.a('object')
+            res.body.should.have.property('code').eql(1)
+            res.body.should.have.property('data')
+            example_contaxt_id=res.body.data[0]._id
+            done()
+        })
+    })
+
+    it("it should not get users contact if there is no token",(done)=>{
+        chai.request(app).get('/contact/').set("tokenMM",token)
+        .end((err,res)=>{
+            res.should.have.status(200)
+            res.should.be.a('object')
+            res.body.should.have.property('code').eql(0)
+            done()
+        })
+    }) 
+
+    it("it should get a single contact for a user",(done)=>{
+        chai.request(app).get('/contact/'+example_contaxt_id).set("token",token)
+        .end((err,res)=>{
+            res.should.have.status(200)
+            res.should.be.a('object')
+            res.body.should.have.property('code').eql(1)
+            done()
+        })
+    }) 
+})
 
 

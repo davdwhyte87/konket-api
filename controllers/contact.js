@@ -29,14 +29,24 @@ exports.add=(req,res)=>{
             res.status(200).json({code:1,message:"Contact added successfully",data:contact})
         })
         .catch(error=>{
-            console.log(error)
             res.status(500).json({code:0,message:"An error occurred",error:error})
         })
     })
     .catch(error=>{
-        console.log(error)
         res.status(500).json({code:0,message:"An error occured",error:error})
     })
+}
+
+function seed(){
+    contacts=[
+        {name:"Dayo lammo",email:"dayoolm83@gmail.com",phone:"092038944"},
+        {name:"Martin4",email:"45gmartin@gmail.com",phone:"0808377493"},
+    ]
+
+    for(contact of contacts){
+        var contact=new Contact(contact)
+        contact.save()
+    }
 }
 
 exports.contact=(req,res)=>{
@@ -46,7 +56,24 @@ exports.contact=(req,res)=>{
     })
     .catch(error=>{
         console.log(error)
-        return res.status(500).json({code:0,message:"An error n occured"})
+        return res.status(500).json({code:0,message:"An error occured"})
+    })
+}
+
+exports.signle_contact=(req,res)=>{
+    var contact_id=req.params.id 
+    var user_id=req.userData.userId
+    Contact.findOne({_id:contact_id,user:user_id}).exec().then(contact=>{
+        if(contact){
+            return res.status(200).json({code:1,data:contact})
+        }
+        else{
+            return res.status(200).json({code:0,message:"This contact does not exist"})
+        }
+    })
+    .catch(error=>{
+        console.log(error)
+        return res.status(500).json({code:0,message:"An error occured"})
     })
 }
 
