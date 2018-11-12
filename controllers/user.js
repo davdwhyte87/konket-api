@@ -22,19 +22,48 @@ exports.validate=(method)=>{
             check.body("password","Password must be at least 5 characters")
             ]
         }
+
+        case "signin":{
+            return [
+                check.check("email","A valid email is needed").exists().isEmail(),
+                check.body("password","A password is required").exists(),
+                check.body("password","Password must be at least 5 characters")
+            ]
+        }
+        case "confirm":{
+            return [
+                check.check("code","A valid code is required").exists()
+            ]
+        } 
+
+        case "forgot_pass":{
+            return [
+                check.check("email","A valid email is required").exists().isEmail()
+            ]
+        }
+
+        case "fchange_pass":{
+            return [
+                check.check("code","A valid code is required").exists(),
+                check.body("new_password","A valid mail is required").exists()
+            ]
+        }
+
+        case "update":{
+            return [
+                check.body("name","An name is needed").exists(),
+                check.check("email","A valid email is needed").exists().isEmail(),
+                check.body("phone","A phone number is required").exists(),
+                check.body("phone","A valid phone number is required").exists().isLength({min:8}),
+                ] 
+        }
     }
 }
 
 
 //sign up function
 exports.signup=(req,res)=>{
-    // req.check("name","Name is required").isString().exists()
-    // req.check("email","You need a valid email").isLength({min:8}).exists()
-    // req.check("phone","Phone number is required").exists()
-    // req.check("phone","You need a valid phone number").isLength({min:8})
-    // req.check("password","A password is required").exists()
     const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
-        // Build your resulting errors however you want! String, object, whatever - it works!
         return msg;
       };
     var errors=check.validationResult(req).formatWith(errorFormatter)
@@ -84,11 +113,14 @@ exports.signup=(req,res)=>{
 
 //sign in a user
 exports.signin=(req,res)=>{
-    req.check("email","You need a valid email").isLength({min:8}).exists()
-    req.check("password","A password is required").exists()
-    var errors=req.validationErrors()
-    if(errors){
-        return res.status(200).json({code:0,message:"An error occured",errors:errors})
+    const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
+        // Build your resulting errors however you want! String, object, whatever - it works!
+        return msg;
+      };
+    var errors=check.validationResult(req).formatWith(errorFormatter)
+    if(!errors.isEmpty()){
+        console.log(errors)
+        return res.status(200).json({code:0,message:"An error occured",errors:errors.array(true)})
     }
     User.findOne({email:req.body.email})
     .exec().then(user=>{
@@ -122,10 +154,13 @@ exports.signin=(req,res)=>{
 
 //confirms a user account with a code
 exports.confirm=(req,res)=>{
-    req.check("code","You need a valid code").isLength({min:4}).exists()
-    var errors=req.validationErrors()
-    if(errors){
-        return res.status(200).json({code:0,message:"An error occured",errors:errors})
+    const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
+        return msg;
+      };
+    var errors=check.validationResult(req).formatWith(errorFormatter)
+    if(!errors.isEmpty()){
+        console.log(errors)
+        return res.status(200).json({code:0,message:"An error occured",errors:errors.array(true)})
     }
     User.findOne({code:req.body.code}).exec()
     .then(user=>{
@@ -150,10 +185,13 @@ exports.confirm=(req,res)=>{
 }
 
 exports.forgot_pass=(req,res)=>{
-    req.check("email","You need a valid email").isLength({min:8}).exists()
-    var errors=req.validationErrors()
-    if(errors){
-        return res.status(200).json({code:0,message:"An error occured",errors:errors})
+    const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
+        return msg;
+      };
+    var errors=check.validationResult(req).formatWith(errorFormatter)
+    if(!errors.isEmpty()){
+        console.log(errors)
+        return res.status(200).json({code:0,message:"An error occured",errors:errors.array(true)})
     }
     User.findOne({email:req.body.email}).exec()
     .then(user=>{
@@ -179,18 +217,20 @@ exports.forgot_pass=(req,res)=>{
 
 
 exports.fchange_pass=(req,res)=>{
-    req.check("new_password","You need a password").exists()
-    req.check("code","You need a valid email").exists()
-    var errors=req.validationErrors()
-    if(errors){
+    const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
+        return msg;
+      };
+    var errors=check.validationResult(req).formatWith(errorFormatter)
+    if(!errors.isEmpty()){
         console.log(errors)
-        return res.status(200).json({code:0,message:"An error occured",errors:errors})
+        return res.status(200).json({code:0,message:"An error occured",errors:errors.array(true)})
     }
     User.findOne({code:req.body.code}).exec()
     .then(user=>{
         if(user){
             bcrypt.hash(req.body.new_password,10,(err,hash)=>{
                 if(err){
+                    console.log(err)
                     return res.status(500).json({error:err,code:0})
                 }
                 user.password=hash
@@ -198,6 +238,7 @@ exports.fchange_pass=(req,res)=>{
                     return res.status(200).json({code:1,message:"Your password has been changed",data:user})
                 })
                 .catch(error=>{
+                    console.log(error)
                     return res.status(500).json({code:0,error:error,message:"An error occurred"})
                 })
             })
@@ -250,13 +291,13 @@ exports.users=(req,res)=>{
 
 exports.update=(req,res)=>{
     var user_id=req.userData.userId
-    req.check("name","Name is required").isString().exists()
-    req.check("email","You need a valid email").isLength({min:8}).exists()  
-    req.check("phone","Phone number is required").exists()
-    req.check("phone","You need a valid phone number").isLength({min:8})
-    var errors=req.validationErrors()
-    if(errors){
-        return res.status(200).json({code:0,message:"An error occured",errors:errors})
+    const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
+        return msg;
+    };
+    var errors=check.validationResult(req).formatWith(errorFormatter)
+    if(!errors.isEmpty()){
+        console.log(errors)
+        return res.status(200).json({code:0,message:"An error occured",errors:errors.array(true)})
     }
     User.updateOne({_id:user_id},{$set:{
         name:req.body.name,
