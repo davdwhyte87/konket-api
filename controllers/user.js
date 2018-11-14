@@ -10,16 +10,15 @@ exports.sayhi=(req,res)=>{
     res.status(200).json({message:"how far"})
 }
 exports.validate=(method)=>{
-    console.log("doneen")
     switch(method){
         case "signup":{
             return [
-            check.body("name","An name is needed").exists(),
-            check.check("email","A valid email is needed").exists().isEmail(),
+            check.body("name","An name is needed").exists().isLength({min:5}),
+            check.body("email","A valid email is needed").exists().isEmail(),
             check.body("phone","A phone number is required").exists(),
             check.body("phone","A valid phone number is required").exists().isLength({min:8}),
             check.body("password","A password is required").exists(),
-            check.body("password","Password must be at least 5 characters")
+            check.body("password","Password must be at least 5 characters").exists().isLength({min:5})
             ]
         }
 
@@ -27,12 +26,12 @@ exports.validate=(method)=>{
             return [
                 check.check("email","A valid email is needed").exists().isEmail(),
                 check.body("password","A password is required").exists(),
-                check.body("password","Password must be at least 5 characters")
+                check.body("password","Password must be at least 5 characters").exists().isLength({min:5})
             ]
         }
         case "confirm":{
             return [
-                check.check("code","A valid code is required").exists()
+                check.body("code","A valid code is required").exists().isLength({min:4})
             ]
         } 
 
@@ -68,8 +67,7 @@ exports.signup=(req,res)=>{
       };
     var errors=check.validationResult(req).formatWith(errorFormatter)
     if(!errors.isEmpty()){
-        console.log(errors)
-        return res.status(200).json({code:0,message:"An error occured",errors:errors.array(true)})
+        return res.status(200).json({code:0,message:"An error occured",errors:errors.array()})
     }
     User.findOne({email:req.body.email}).exec().then(user=>{
         if(user){
@@ -119,7 +117,6 @@ exports.signin=(req,res)=>{
       };
     var errors=check.validationResult(req).formatWith(errorFormatter)
     if(!errors.isEmpty()){
-        console.log(errors)
         return res.status(200).json({code:0,message:"An error occured",errors:errors.array(true)})
     }
     User.findOne({email:req.body.email})
@@ -127,9 +124,9 @@ exports.signin=(req,res)=>{
         if(!user){
             return res.status(200).json({code:0,message:"This account does not exist"})
         }else{
-            if(user.confirmed!=true){
-                return res.status(200).json({code:0,message:"This account has not been confirmed"}) 
-            }
+            // if(user.confirmed!=true){
+            //     return res.status(200).json({code:0,message:"This account has not been confirmed"}) 
+            // }
             bcrypt.compare(req.body.password,user.password,(err,result)=>{
                 if(err){
                     return res.status(200).json({code:0,message:"An error occurred"})

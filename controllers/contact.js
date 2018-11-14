@@ -1,15 +1,35 @@
 const Contact=require('../models/Contact')
 const mongoose=require('mongoose')
+let check=require('express-validator/check')
 
+exports.validate=(method)=>{
+    switch(method){
+        case "add":{
+            return [
+            check.body("name","A name is needed").exists().isLength({min:1}),
+            check.body("phone","A phone number is required").exists(),
+            check.body("phone","A valid phone number is required").exists().isLength({min:8})
+            ]
+        }
+
+        case "update":{
+            return [
+                check.body("name","An name is needed").exists(),
+                check.check("email","A valid email is needed").exists().isEmail(),
+                check.body("phone","A phone number is required").exists(),
+                check.body("phone","A valid phone number is required").exists().isLength({min:8})
+                ] 
+        }
+    }
+}
 
 exports.add=(req,res)=>{
-    req.check("name","Name is required").isString().exists()
-    req.check("phone","Phone number is required").exists()
-    req.check("phone","You need a valid phone number").isLength({min:8})
-    var errors=req.validationErrors()
-    if(errors){
-        console.log(errors)
-        return res.status(200).json({code:0,message:"An error occured",errors:errors})
+    const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
+        return msg;
+      };
+    var errors=check.validationResult(req).formatWith(errorFormatter)
+    if(!errors.isEmpty()){
+        return res.status(200).json({code:0,message:"An error occured",errors:errors.array()})
     }
     var user_id=req.userData.userId
     Contact.findOne({email:req.body.email,phone:req.body.phone}).exec()
