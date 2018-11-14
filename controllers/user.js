@@ -124,9 +124,9 @@ exports.signin=(req,res)=>{
         if(!user){
             return res.status(200).json({code:0,message:"This account does not exist"})
         }else{
-            // if(user.confirmed!=true){
-            //     return res.status(200).json({code:0,message:"This account has not been confirmed"}) 
-            // }
+            if(user.confirmed!=true){
+                return res.status(200).json({code:0,message:"This account has not been confirmed"}) 
+            }
             bcrypt.compare(req.body.password,user.password,(err,result)=>{
                 if(err){
                     return res.status(200).json({code:0,message:"An error occurred"})

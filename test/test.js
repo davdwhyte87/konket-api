@@ -457,6 +457,43 @@ describe("Contacts Test",()=>{
             done()
         })
     }) 
+
+    it("It should delete a contact",(done)=>{
+        chai.request(app).del('/contact/'+example_contaxt_id+"/delete").set("token",token)
+        .end((err,res)=>{
+            res.should.have.status(200)
+            res.should.be.a('object')
+            res.body.should.have.property('code').eql(1)
+            done() 
+        })
+    })
+    it("It should not  delete a contact if the id is wrong",(done)=>{
+        chai.request(app).del('/contact/'+example_contaxt_id+"9289jjd29"+"/delete").set("token",token)
+        .end((err,res)=>{
+            res.should.have.status(200)
+            res.should.be.a('object')
+            res.body.should.have.property('code').eql(0)
+            done() 
+        })
+    })
+
+    it("It should not delete a contact if the owner is not authenticated",(done)=>{
+        chai.request(app).del('/contact/'+example_contaxt_id+"/delete").set("token",token+"iok")
+        .end((err,res)=>{
+            res.should.be.a('object')
+            res.body.should.have.property('code').eql(0)
+            done() 
+        })
+    })
+
+    it("It should not delete a contact if the owner is not authenticated",(done)=>{
+        chai.request(app).del('/contact/'+example_contaxt_id+"/delete").set("tokenMM",token+"iok")
+        .end((err,res)=>{
+            res.should.be.a('object')
+            res.body.should.have.property('code').eql(0)
+            done() 
+        })
+    })
 })
 
 

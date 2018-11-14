@@ -114,3 +114,16 @@ exports.edit=(req,res)=>{
         return res.status(500).json({code:0,message:"An error occurred",error:erro})
     })
 }
+
+exports.delete=(req,res)=>{
+    var contact_id=req.params.id
+    var user_id=req.userData.userId 
+    Contact.deleteOne({_id:contact_id,user:user_id}).then((doc)=>{
+        console.log(doc)
+        return res.status(200).json({code:1,message:"Conatact deleted!"})
+    })
+    .catch(error=>{
+        console.log(error)
+        return res.status(200).json({code:0,message:"An error occured"})
+    })
+}
