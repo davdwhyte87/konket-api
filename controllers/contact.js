@@ -15,7 +15,6 @@ exports.validate=(method)=>{
         case "update":{
             return [
                 check.body("name","An name is needed").exists(),
-                check.check("email","A valid email is needed").exists().isEmail(),
                 check.body("phone","A phone number is required").exists(),
                 check.body("phone","A valid phone number is required").exists().isLength({min:8})
                 ] 
@@ -98,19 +97,25 @@ exports.signle_contact=(req,res)=>{
 }
 
 exports.edit=(req,res)=>{
-    var c_id=req.params.id 
+    const errorFormatter = ({ location, msg, param, value, nestedErrors }) => {
+        return msg;
+      };
+    var errors=check.validationResult(req).formatWith(errorFormatter)
+    if(!errors.isEmpty()){
+        return res.status(200).json({code:0,message:"An error occured",errors:errors.array()})
+    }
+    var contact_id=req.params.id 
     var user_id=req.userData.userId
-    Contact.updateOne({_id:c_id,user:user_id},{$set:{
+    Contact.updateOne({_id:contact_id,user:user_id},{$set:{
         name:req.body.name,
         email:req.body.email,
-        phone:req.body.phone
+        phone:req.body.phone,
+        address:req.body.address
     }}).exec()
     .then(contact=>{
-        console.log(contact)
         return res.status(200).json({code:1,message:"Conatact data updated"})
     })
     .catch(erro=>{
-        console.log(erro)
         return res.status(500).json({code:0,message:"An error occurred",error:erro})
     })
 }
@@ -119,11 +124,12 @@ exports.delete=(req,res)=>{
     var contact_id=req.params.id
     var user_id=req.userData.userId 
     Contact.deleteOne({_id:contact_id,user:user_id}).then((doc)=>{
-        console.log(doc)
+        if(!doc){
+            return res.status(200).json({code:0,message:"An error occured"})
+        }
         return res.status(200).json({code:1,message:"Conatact deleted!"})
     })
     .catch(error=>{
-        console.log(error)
         return res.status(200).json({code:0,message:"An error occured"})
     })
 }
